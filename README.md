@@ -4,8 +4,9 @@ A queue-based Runpod Serverless worker for [`fishaudio/drama-3`](https://hugging
 (35B MoE text-to-speech, 3B active, FP8 experts) served by
 [SGLang-Omni](https://github.com/sgl-project/sglang-omni).
 
-- `Dockerfile` — SGLang-Omni CUDA 13 image (pinned digest) plus SGLang-Omni from a pinned
-  commit (Drama 3 support is newer than the 0.1.8 PyPI release).
+- `Dockerfile` — the SGLang 0.5.21 CUDA 13 image (pinned digest) plus SGLang-Omni from a
+  pinned commit (Drama 3 support is newer than the 0.1.8 PyPI release). SGLang-Omni pins
+  `sglang==0.5.21`; 0.5.22 removed a module it imports, so the base must stay on 0.5.21.
 - `handler.py` — starts `sgl-omni serve` on localhost at worker boot, then forwards each
   job's `input` to `POST /v1/audio/speech` and returns the audio base64-encoded.
 
