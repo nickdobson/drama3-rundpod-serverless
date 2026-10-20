@@ -12,17 +12,29 @@ A queue-based Runpod Serverless worker for [`fishaudio/drama-3`](https://hugging
 
 ## Endpoint settings
 
+The live endpoint (`derlgrwcavpoya`) runs with:
+
 | Setting | Value |
 | --- | --- |
-| Type | Queue |
-| GPU | 80 GB (H100), 141 GB (H200) as fallback. Weights are ~39 GB, and the engine takes 70% of the card by default |
-| CUDA | 13.0 or newer (the image is CUDA 13) |
+| Type | Queue (GitHub integration, `main` branch; each push rebuilds and rolls out) |
+| GPU pools, in priority order | `BLACKWELL_96` (RTX PRO 6000 96 GB), `ADA_80_PRO` (H100 80 GB), `HOPPER_141` (H200 141 GB). Weights are ~39 GB, and the engine takes 70% of the card by default |
+| GPUs per worker | 1 |
+| Allowed CUDA versions | 13.0–13.4 (the image is CUDA 13) |
+| Workers | min 0, max 1 |
+| Idle timeout | 120 s |
+| FlashBoot | On |
+| Execution timeout | 600 s |
 | Container disk | 100 GB (room for a weight download if the model cache misses) |
-| Model (model cache) | `https://huggingface.co/fishaudio/drama-3` |
-| Execution timeout | 600 s or more |
+| Cached model | `https://huggingface.co/fishaudio/drama-3` |
 
-The first boot of a fresh worker pulls a ~18 GB (compressed) image and loads ~39 GB of
-weights, so the first job can take 5–15 minutes. Later jobs on a warm worker take seconds.
+The RTX PRO 6000 is first because H100/H200 serverless supply is often low. Drama 3 is only
+validated upstream on Hopper (sm_90); on Blackwell it runs, with fallback sampling kernels.
+
+A worker on a new host pulls a ~15 GB (compressed) image, waits while Runpod's model cache
+downloads the ~41.5 GB checkpoint to that host (about 4 minutes; the worker shows as
+THROTTLED with `image ready, model pending download` in its system log), then loads the
+model. So the first job on a new host can take 10–20 minutes. Later jobs on a warm worker
+take seconds.
 
 ### Environment variables (all optional)
 
