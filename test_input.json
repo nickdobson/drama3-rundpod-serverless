@@ -1,0 +1,6 @@
+{
+  "input": {
+    "input": "Hello from Fish Audio Drama 3, running on Runpod Serverless.",
+    "response_format": "mp3"
+  }
+}
